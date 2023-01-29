@@ -1,0 +1,44 @@
+const request = require("request");
+
+const first_name = req.body.first_name;
+const last_name = req.body.last_name;
+const country = req.body.country;
+const prefix = req.body.prefix;
+const email = req.body.email;
+const phone = req.body.phone;
+const password = req.body.password;
+const click_id = req.body.click_id;
+const oid = req.body.oid;
+
+const url = 'https://api.jvbastion.co/api/v1/info/geo-ip';
+
+request.get(url, (err, res, body) => {
+    const jsonBody = JSON.parse(body);
+    const ip = jsonBody.body.ip;
+    const ua = req.headers['user-agent'];
+
+    let queryString = `fname=${first_name}&lname=${last_name}&email=${email}&phone=${phone}&country=${country}&password=${password}&ip=${ip}&ua=${ua}&autologin=true`;
+
+    if (click_id && oid) {
+        queryString += `&click_id=${click_id}&offer_id=${oid}`;
+    }
+
+    request.post({
+        headers: {'content-type' : 'application/x-www-form-urlencoded'},
+        url: 'https://api.jvbastion.co/api/v1/clients/register',
+        body: queryString
+    }, (err, res, body) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(body);
+            const statusO = JSON.parse(body);
+            const status = statusO.status;
+            if (status === "FAILURE") {
+                // handle failure
+            } else {
+                // handle success
+            }
+        }
+    });
+});
